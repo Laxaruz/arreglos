@@ -53,24 +53,22 @@ public class UsuarioServiceImpl implements UsuarioService {
         // Guardar el usuario primero
         Usuario usuarioGuardado = usuarioRepository.save(nuevoUsuario);
 
-        // 2. Si el rol es EMPLEADO, instanciar y asociar el Empleado
-        if ("EMPLEADO".equalsIgnoreCase(usuarioGuardado.getRol().name())) {
-            Empleado nuevoEmpleado = new Empleado();
-            nuevoEmpleado.setNombreCompleto(dto.getNombre());
-            nuevoEmpleado.setNumeroDocumento(dto.getCedula());
-            
-            // Asignar parámetros con validaciones de nulos para que no lance SQLException
-            nuevoEmpleado.setDepartamento(dto.getArea() != null && !dto.getArea().isEmpty() ? dto.getArea() : "General");
-            nuevoEmpleado.setCargo(dto.getCargo() != null && !dto.getCargo().isEmpty() ? dto.getCargo() : "Analista");
-            nuevoEmpleado.setFechaIngreso(dto.getFechaIngreso() != null ? dto.getFechaIngreso() : LocalDate.now());
-            nuevoEmpleado.setSalario(dto.getSalario() != null ? dto.getSalario() : BigDecimal.ZERO);
-            
-            // REGLA CRÍTICA: Vincular el objeto usuario guardado (relación foreign key)
-            nuevoEmpleado.setUsuario(usuarioGuardado);
-            
-            // Guardar el empleado en la tabla
-            empleadoRepository.save(nuevoEmpleado);
-        }
+        // 2. Siempre crear registro de empleado para conservar nombre/cédula en listados de usuarios
+        Empleado nuevoEmpleado = new Empleado();
+        nuevoEmpleado.setNombreCompleto(dto.getNombre());
+        nuevoEmpleado.setNumeroDocumento(dto.getCedula());
+
+        // Asignar parámetros con validaciones de nulos para evitar fallos por campos obligatorios
+        nuevoEmpleado.setDepartamento(dto.getArea() != null && !dto.getArea().isEmpty() ? dto.getArea() : "General");
+        nuevoEmpleado.setCargo(dto.getCargo() != null && !dto.getCargo().isEmpty() ? dto.getCargo() : "Analista");
+        nuevoEmpleado.setFechaIngreso(dto.getFechaIngreso() != null ? dto.getFechaIngreso() : LocalDate.now());
+        nuevoEmpleado.setSalario(dto.getSalario() != null ? dto.getSalario() : BigDecimal.ZERO);
+
+        // REGLA CRÍTICA: Vincular el objeto usuario guardado (relación foreign key)
+        nuevoEmpleado.setUsuario(usuarioGuardado);
+
+        // Guardar empleado
+        empleadoRepository.save(nuevoEmpleado);
     }
 
     @Override
@@ -121,20 +119,18 @@ public class UsuarioServiceImpl implements UsuarioService {
         
         usuarioRepository.save(usuario);
 
-        if ("EMPLEADO".equalsIgnoreCase(dto.getRol())) {
-            Empleado empleado = usuario.getEmpleado();
-            if (empleado == null) {
-                empleado = new Empleado();
-                empleado.setUsuario(usuario);
-            }
-            empleado.setNombreCompleto(dto.getNombre());
-            empleado.setNumeroDocumento(dto.getCedula());
-            empleado.setDepartamento(dto.getArea() != null && !dto.getArea().isEmpty() ? dto.getArea() : "General");
-            empleado.setCargo(dto.getCargo() != null && !dto.getCargo().isEmpty() ? dto.getCargo() : "Analista");
-            empleado.setFechaIngreso(dto.getFechaIngreso() != null ? dto.getFechaIngreso() : LocalDate.now());
-            empleado.setSalario(dto.getSalario() != null ? dto.getSalario() : BigDecimal.ZERO);
-            empleadoRepository.save(empleado);
+        Empleado empleado = usuario.getEmpleado();
+        if (empleado == null) {
+            empleado = new Empleado();
+            empleado.setUsuario(usuario);
         }
+        empleado.setNombreCompleto(dto.getNombre());
+        empleado.setNumeroDocumento(dto.getCedula());
+        empleado.setDepartamento(dto.getArea() != null && !dto.getArea().isEmpty() ? dto.getArea() : "General");
+        empleado.setCargo(dto.getCargo() != null && !dto.getCargo().isEmpty() ? dto.getCargo() : "Analista");
+        empleado.setFechaIngreso(dto.getFechaIngreso() != null ? dto.getFechaIngreso() : LocalDate.now());
+        empleado.setSalario(dto.getSalario() != null ? dto.getSalario() : BigDecimal.ZERO);
+        empleadoRepository.save(empleado);
     }
 
     @Override
