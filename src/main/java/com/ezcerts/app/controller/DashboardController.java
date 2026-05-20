@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import com.ezcerts.app.service.SolicitudVacacionesService;
 import com.ezcerts.app.model.SolicitudVacaciones;
 import com.ezcerts.app.model.EstadoSolicitud;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class DashboardController {
@@ -163,6 +164,40 @@ public class DashboardController {
         return "dashboard-admin";
     }
 
+    @GetMapping("/dashboard/admin/solicitudes-pendientes")
+    public String solicitudesPendientes(Authentication authentication, Model model) {
+        if (!esRrhhOAdmin(authentication)) {
+            return "redirect:/dashboard";
+        }
+
+        List<SolicitudVacaciones> solicitudes = new ArrayList<>(solicitudVacacionesService.listarPendientes());
+        solicitudes.sort(Comparator.comparing(SolicitudVacaciones::getFechaInicio));
+        model.addAttribute("solicitudesPendientes", solicitudes);
+        return "solicitudes-pendientes";
+    }
+
+    @PostMapping("/dashboard/admin/solicitudes-pendientes/actualizar-estado")
+    public String actualizarEstadoSolicitud(Authentication authentication,
+                                           @RequestParam("id") Long id,
+                                           @RequestParam("estado") String estado,
+                                           @RequestParam("comentarioRevision") String comentarioRevision,
+                                           RedirectAttributes redirectAttributes) {
+        if (!esRrhhOAdmin(authentication)) {
+            return "redirect:/dashboard";
+        }
+
+        try {
+            EstadoSolicitud nuevoEstado = EstadoSolicitud.valueOf(estado.toUpperCase());
+            solicitudVacacionesService.actualizarEstado(id, nuevoEstado, comentarioRevision);
+            redirectAttributes.addFlashAttribute("exito", "Solicitud actualizada correctamente.");
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", "No se pudo actualizar la solicitud.");
+        }
+        return "redirect:/dashboard/admin/solicitudes-pendientes";
+    }
+
     @GetMapping("/dashboard/admin/certificados-generados")
     public String certificadosGenerados(Model model) {
         List<Certificado> certificados = certificadoRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "fechaGeneracion"));
@@ -283,5 +318,16 @@ public class DashboardController {
             redirectAttributes.addFlashAttribute("error", "Hubo un problema al eliminar el usuario");
             return "redirect:/dashboard/usuarios-activos";
         }
+    }
+
+    private boolean esRrhhOAdmin(Authentication authentication) {
+        if (authentication == null) {
+            return false;
+        }
+
+        Set<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+        return roles.contains("ROLE_RRHH") || roles.contains("ROLE_ADMIN");
     }
 }

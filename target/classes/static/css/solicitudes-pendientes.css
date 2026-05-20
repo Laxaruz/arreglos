@@ -1,0 +1,26 @@
+.pending-card {
+  width: 900px;
+}
+
+.active-link {
+  background: linear-gradient(180deg, #094aa3, #083b84) !important;
+}
+
+.pending-item {
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.pending-dates {
+  font-size: 14px;
+  color: #495057;
+}
+
+@media (max-width: 991px) {
+  .pending-card {
+    width: 96%;
+  }
+}
