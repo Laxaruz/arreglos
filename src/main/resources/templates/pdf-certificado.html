@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Certificado Laboral</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333;
+            font-size: 12pt;
+            line-height: 1.6;
+        }
+        .cert-header {
+            text-align: center;
+            border-bottom: 2px solid #235487;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .cert-header h2 {
+            color: #235487;
+            margin: 0;
+            font-size: 24pt;
+        }
+        .cert-header p {
+            color: #555;
+            margin: 5px 0 0 0;
+            font-size: 11pt;
+        }
+        .cert-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+        .cert-body {
+            text-align: justify;
+            margin-bottom: 40px;
+        }
+        .cert-footer {
+            margin-top: 80px;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+            font-size: 10pt;
+            color: #555;
+        }
+        .firma {
+            margin-top: 60px;
+        }
+        .firma-linea {
+            width: 250px;
+            border-bottom: 1px solid #000;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cert-header">
+        <h2>EZ CERTS</h2>
+        <p>Gestión de Certificados Laborales</p>
+    </div>
+
+    <div class="cert-title" th:text="${'CERTIFICADO ' + (tipo == 'INGRESOS' ? 'DE INGRESOS Y RETENCIONES' : (tipo == 'EXPERIENCIA' ? 'DE EXPERIENCIA LABORAL' : (tipo == 'ESTUDIOS' ? 'PARA FINES ACADÉMICOS' : 'LABORAL')))}">
+        CERTIFICADO LABORAL
+    </div>
+
+    <div class="cert-body">
+        <!-- PLATILLA 1: LABORAL NORMAL (SIN SALARIO) -->
+        <p th:if="${tipo == 'LABORAL'}">
+            La empresa <strong>EZ CERTS S.A.S.</strong>, identificada con NIT 900.123.456-7, por medio de la presente certifica que el señor(a) <strong th:text="${empleado.nombreCompleto}">Juan Pérez</strong>, identificado(a) con cédula de ciudadanía N.° <strong th:text="${empleado.numeroDocumento}">1.234.567.890</strong>, trabaja en nuestra organización desde el <strong th:text="${empleado.fechaIngreso}">01 de enero de 2022</strong> desempeñando el cargo de <strong th:text="${empleado.cargo}">Analista</strong> con un contrato a término indefinido.
+        </p>
+
+        <!-- PLATILLA 2: INGRESOS (CON SALARIO) -->
+        <p th:if="${tipo == 'INGRESOS'}">
+            La empresa <strong>EZ CERTS S.A.S.</strong>, identificada con NIT 900.123.456-7, por medio de la presente certifica que el señor(a) <strong th:text="${empleado.nombreCompleto}">Juan Pérez</strong>, identificado(a) con cédula de ciudadanía N.° <strong th:text="${empleado.numeroDocumento}">1.234.567.890</strong>, trabaja en nuestra organización desde el <strong th:text="${empleado.fechaIngreso}">01 de enero de 2022</strong> desempeñando el cargo de <strong th:text="${empleado.cargo}">Analista</strong> con un contrato a término indefinido y una asignación salarial mensual de <strong>$<span th:text="${#numbers.formatDecimal(empleado.salario, 0, 'COMMA', 0, 'POINT')}">3.500.000</span> COP</strong>.
+        </p>
+
+        <!-- PLATILLA 3: EXPERIENCIA -->
+        <p th:if="${tipo == 'EXPERIENCIA'}">
+            La empresa <strong>EZ CERTS S.A.S.</strong> hace constar que <strong th:text="${empleado.nombreCompleto}">Juan Pérez</strong>, portador del documento de identidad N.° <strong th:text="${empleado.numeroDocumento}">1.234.567.890</strong>, ha prestado sus servicios a nuestra empresa desempeñando las funciones inherentes al cargo de <strong th:text="${empleado.cargo}">Analista</strong> desde la fecha <strong th:text="${empleado.fechaIngreso}">01 de enero de 2022</strong>. Durante este periodo ha demostrado responsabilidad, honestidad y alto nivel de compromiso institucional.
+        </p>
+
+        <!-- PLATILLA 4: ESTUDIOS -->
+        <p th:if="${tipo == 'ESTUDIOS'}">
+            A petición del interesado, <strong>EZ CERTS S.A.S.</strong> certifica que el colaborador <strong th:text="${empleado.nombreCompleto}">Juan Pérez</strong>, identificado(a) con cédula N.° <strong th:text="${empleado.numeroDocumento}">1.234.567.890</strong>, forma parte activa de nuestro equipo de trabajo en el área de <strong th:text="${empleado.departamento}">General</strong> desde el <strong th:text="${empleado.fechaIngreso}">01 de enero de 2022</strong>. Se expide esta certificación para fines exclusivamente académicos y/o trámites educativos.
+        </p>
+
+        <p>
+            El presente certificado se expide a solicitud del interesado y se dirige <strong>A quien corresponda</strong>.
+        </p>
+    </div>
+
+    <div class="firma">
+        <div class="firma-linea"></div>
+        <strong>Departamento de Recursos Humanos</strong><br/>
+        EZ CERTS S.A.S.
+    </div>
+
+    <div class="cert-footer">
+        <span th:text="${'Expedido en Medellín, ' + fechaActual}">Expedido Medellín, 2026</span>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+/* dashboard.css: estilos para dashboard-empleado y admin shared */
+:root{
+  --brand-blue: #0d6efd;
+  --brand-dark: #0a5cb6;
+}
+
+/* hero background */
+.hero-bg{
+  position: relative; /* para posicionar la tarjeta flotante dentro */
+  background-image: url('/img/login-bg.png');
+  background-position: center;
+  background-size: cover;
+  padding: 48px 0 220px; /* mayor espacio inferior */
+}
+
+/* header */
+.app-header{ background: rgba(255,255,255,0.95); border-bottom: 1px solid #e9ecef; }
+.app-logo{ font-weight:700; color:var(--brand-dark); letter-spacing:1px; font-size:18px; }
+.avatar{ width:40px; height:40px; border-radius:50%; background:#dfeffb; display:inline-block; }
+
+/* action row */
+.action-row{ padding-top:22px; padding-bottom:40px; }
+.action-row .action-card{ border-radius:8px; position:relative; z-index:20; }
+
+/* floating central card: mantener en flujo normal para no solapar */
+.floating-wrapper{ position:static; display:flex; justify-content:center; margin-top:24px; margin-bottom:60px; z-index:30; }
+.floating-card{ width:720px; border-radius:14px; background:#ffffff; padding:24px; box-shadow: 0 28px 80px rgba(33,37,41,0.14); border: 1px solid rgba(0,0,0,0.06); }
+.floating-card::after{ content:''; display:block; height:8px; }
+.floating-card .btn{ border-radius:6px; }
+
+.btn-group-top{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:12px; }
+.btn-group-top .btn{
+  background: linear-gradient(180deg, #0b7fd9, #0a5cb6);
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(11, 127, 217, 0.2);
+  transition: all 0.2s ease;
+}
+.btn-group-top .btn:hover{
+  background: linear-gradient(180deg, #0a5cb6, #094aa3);
+  box-shadow: 0 6px 16px rgba(11, 127, 217, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ensure floating card is visually centered under action cards */
+@media (min-width: 992px){
+  .container { max-width: 1140px; }
+  .floating-wrapper{ margin-left: auto; margin-right: auto; }
+}
+
+/* list items spacing */
+.list-group-item{ padding-top:14px; padding-bottom:14px; border: none; }
+.list-group-item + .list-group-item{ border-top:1px solid #ececec; }
+
+/* small decorative icon for header of list */
+.floating-card h6{ display:flex; align-items:center; gap:8px; }
+.floating-card h6 .bi{ color:var(--brand-blue); font-size:18px; }
+
+/* responsive tweaks */
+@media (max-width: 991px){
+  .floating-card{ width:92%; margin: 0 12px; }
+  .hero-bg{ padding: 28px 0 120px; }
+}
+
+@media (max-width: 576px){
+  .action-row .card-body{ padding:14px; }
+  .btn-group-top .btn{ font-size:12px; padding:6px 10px; }
+}

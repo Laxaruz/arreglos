@@ -1,0 +1,111 @@
+/* Estilos especificos para solicitar certificado */
+
+.breadcrumb a {
+    color: #4b6a88;
+    font-size: 0.9rem;
+}
+
+.breadcrumb-item.active {
+    color: #9cb1c5;
+    font-size: 0.9rem;
+}
+
+.stepper-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.stepper-wrapper .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.stepper-wrapper .circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e5edf5; /* light blue/gray */
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.stepper-wrapper .step.active .circle {
+    background-color: #235487; /* darker blue */
+    color: #fff;
+}
+
+.stepper-wrapper .step .label {
+    font-size: 0.85rem;
+    color: #aebccc;
+    font-weight: 500;
+}
+
+.stepper-wrapper .step.active .label {
+    color: #235487;
+    font-weight: 600;
+}
+
+.stepper-wrapper .line {
+    flex-grow: 1;
+    height: 2px;
+    background-color: #d1dde8;
+    margin-bottom: 25px; /* align with circles */
+    margin-left: -15px;
+    margin-right: -15px;
+    z-index: 1;
+}
+
+/* Options Grid */
+.cert-option {
+    border: 1px solid #d1dde8;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    background-color: #fff;
+}
+
+.cert-option:hover {
+    border-color: #235487;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.cert-option.active {
+    border-color: #235487 !important;
+    background-color: #eaf1f8; /* pale blue from mockup */
+}
+
+.cert-option .cert-title {
+    color: #0b2d4f;
+    font-weight: 600;
+}
+
+.cert-option.active .cert-title {
+    color: #0b2d4f;
+}
+
+/* Boton continuar basado en mockup */
+.btn-continue {
+    color: #c7d5e4;
+    border-color: #ecf3fa;
+    background-color: transparent;
+    font-weight: 600;
+}
+
+.btn-continue:hover {
+    background-color: #235487;
+    color: #fff !important;
+    border-color: #235487;
+}
+

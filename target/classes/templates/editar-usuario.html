@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZ CERTS | Editar Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/login.css}" href="/css/login.css" />
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css" />
+    <link rel="stylesheet" th:href="@{/css/crear-usuario.css}" href="/css/crear-usuario.css" />
+</head>
+<body class="bg-light">
+<header class="app-header">
+    <div class="container d-flex align-items-center justify-content-between py-2">
+        <div class="d-flex align-items-center">
+            <div class="me-3"><span class="app-logo">EZ CERTS</span><div class="small text-muted">Gestión de Certificados Laborales</div></div>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="me-3 small text-muted">Bienvenido</div>
+            <div class="avatar me-2"></div>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button class="btn btn-outline-danger btn-sm">Salir</button>
+            </form>
+        </div>
+    </div>
+</header>
+<section class="hero-bg pb-5">
+    <div class="container">
+
+        <!-- Botón de regreso -->
+        <div class="pt-4 mb-2">
+            <a th:href="@{/dashboard/admin}" class="text-decoration-none text-muted" style="font-weight: 500; font-size: 0.95rem;">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Dashboard
+            </a>
+        </div>
+
+        <div class="form-wrapper mt-2 mx-auto" style="max-width: 800px;">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-2" style="font-size: 0.9rem;">
+                            <li class="breadcrumb-item"><a th:href="@{/dashboard/usuarios-activos}" style="text-decoration: none; color: #6c757d;">Usuarios</a></li>
+                            <li class="breadcrumb-item active" aria-current="page" style="color: #adb5bd;">Editar Usuario</li>
+                        </ol>
+                    </nav>
+                    <h3 class="fw-bold mb-4" style="color: #0d2b56;">Editar Usuario</h3>
+                    <!-- Contenedor subida de foto placeholder -->
+                    <div class="d-flex align-items-center mb-4 pb-2">
+                        <div class="photo-placeholder rounded-circle bg-light border d-flex align-items-center justify-content-center me-3" style="width: 80px; height: 80px; border-style: dashed !important; border-color: #a0c4f2 !important;">
+                            <i class="bi bi-person-fill text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-light text-muted border px-4 btn-sm mb-1 bg-white">
+                                + Subir foto
+                            </button>
+                            <div class="text-muted" style="font-size: 0.8rem; color: #adb5bd !important;">PNG o JPG, máx. 2MB</div>
+                        </div>
+                    </div>
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                    <form th:action="@{/dashboard/usuarios-activos/actualizar}" th:object="${usuarioDto}" method="post">
+                        <input type="hidden" name="id" th:value="${usuarioId}" />
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-primary fw-semibold small mb-1">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control custom-input" th:field="*{nombre}" placeholder="Ej. Juan Pérez" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-primary fw-semibold small mb-1">Cédula <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control custom-input" th:field="*{cedula}" placeholder="Ej. 1234567890" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-primary fw-semibold small mb-1">Correo electrónico <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control custom-input" th:field="*{correo}" placeholder="correo@empresa.com" required>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-primary fw-semibold small mb-1">Contraseña <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control custom-input" th:field="*{contrasena}" placeholder="********" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-primary fw-semibold small mb-1">Confirmar contraseña <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control custom-input" th:field="*{confirmarContrasena}" placeholder="********" required>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label text-primary fw-semibold small mb-1">Rol <span class="text-danger">*</span></label>
+                                <select class="form-select custom-input" th:field="*{rol}" id="rolSelect" onchange="toggleEmpleadoFields()">
+                                    <option value="EMPLEADO">Empleado (Crea perfil)</option>
+                                    <option value="RRHH">Recursos Humanos (RRHH)</option>
+                                    <option value="ADMIN">Administrador (Admin)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary fw-semibold small mb-1" style="color: #6c757d !important;">Área / Departamento</label>
+                                <select class="form-select custom-input" th:field="*{area}">
+                                    <option value="Otras">Generales</option>
+                                    <option value="Ventas">Ventas</option>
+                                    <option value="Tecnologia">Tecnología</option>
+                                    <option value="Administracion">Administración</option>
+                                    <option value="Recursos Humanos">Recursos Humanos</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Additional Employee Fields (Hidden for Admin/RRHH) -->
+                        <div id="empleadoFields" class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label text-primary fw-semibold small mb-1">Cargo</label>
+                                <input type="text" class="form-control custom-input" th:field="*{cargo}" placeholder="Ej. Analista">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-primary fw-semibold small mb-1">Salario (COP)</label>
+                                <input type="number" class="form-control custom-input" th:field="*{salario}" placeholder="Ej. 3500000">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-primary fw-semibold small mb-1">Fecha Ingreso</label>
+                                <input type="date" class="form-control custom-input" th:field="*{fechaIngreso}">
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <div class="fw-bold" style="color: #0d2b56;">Estado del usuario</div>
+                                <div class="text-muted small">El usuario podrá iniciar sesión de inmediato</div>
+                            </div>
+                            <div class="form-check form-switch fs-5 p-0 d-flex align-items-center gap-2">
+                                <input class="form-check-input ms-0 m-0" type="checkbox" role="switch" th:field="*{activo}" id="flexSwitchCheckChecked" style="width: 2.5em; height: 1.25em;">
+                                <label class="form-check-label fw-bold text-primary fs-6 mb-0 mt-1" for="flexSwitchCheckChecked" style="margin-left: 0.5rem;">Activo</label>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <a th:href="@{/dashboard/usuarios-activos}" class="btn btn-outline-light w-100 border py-2 text-muted fw-bold">( Cancelar )</a>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="background-color: #235487; border-color: #235487; color: #ffffff !important;">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<footer class="footer text-center py-3">
+    <div class="container text-muted small">© 2024 EZ CERTS | <a href="#">Términos y Condiciones</a> | <a href="#">Privacidad</a></div>
+</footer>
+
+<script>
+    function toggleEmpleadoFields() {
+        const rol = document.getElementById('rolSelect').value;
+        const fields = document.getElementById('empleadoFields');
+        if (rol === 'EMPLEADO') {
+            fields.style.display = 'flex';
+        } else {
+            fields.style.display = 'none';
+        }
+    }
+    // Ejecutar al cargar la página por si se recarga conservando un rol diferente
+    document.addEventListener('DOMContentLoaded', toggleEmpleadoFields);
+</script>
+
+</body>
+</html>

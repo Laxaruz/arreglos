@@ -1,0 +1,19 @@
+/* Custom inputs */
+.custom-input {
+    background-color: #343a40 !important;
+    color: #f8f9fa !important;
+    border: 1px solid #495057;
+}
+.custom-input::placeholder {
+    color: #ced4da;
+    opacity: 1; /* Firefox */
+}
+/* Ensure the select dropdown itself remains readable */
+.custom-input option {
+    background-color: #343a40;
+    color: #f8f9fa;
+}
+label {
+    margin-bottom: 0.5rem;
+}
+

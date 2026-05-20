@@ -1,0 +1,4 @@
+com\ezcerts\app\AlterDb.class
+com\ezcerts\app\TestPdfGenerationTest.class
+com\ezcerts\app\CheckDb.class
+com\ezcerts\app\TestPdfGeneration.class
