@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EZ CERTS | Reportes del Mes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css" />
+    <link rel="stylesheet" th:href="@{/css/reportes-mes.css}" href="/css/reportes-mes.css" />
+</head>
+<body class="bg-light">
+<header class="app-header">
+    <div class="container d-flex align-items-center justify-content-between py-2">
+        <div class="d-flex align-items-center">
+            <div class="me-3"><a th:href="@{/dashboard/admin}" class="text-decoration-none"><span class="app-logo">EZ CERTS</span></a><div class="small text-muted">Gestion de Certificados Laborales</div></div>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="me-3 small text-muted">Bienvenido</div>
+            <div class="avatar me-2"></div>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button class="btn btn-outline-danger btn-sm">Salir</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<section class="hero-bg pb-5">
+    <div class="container pt-4">
+        <div class="floating-wrapper">
+            <div class="card floating-card shadow-lg report-card">
+                <div class="card-body">
+                    <div class="btn-group-top mb-4 d-flex justify-content-center">
+                        <a th:href="@{/dashboard/admin/certificados-generados}" class="btn btn-sm">[ Certificados Generados ]</a>
+                        <a th:href="@{/dashboard/admin/solicitudes-pendientes}" class="btn btn-sm">[ Solicitudes Pendientes ]</a>
+                        <a th:href="@{/dashboard/admin/reportes-mes}" class="btn btn-sm active-link">[ Reportes del Mes ]</a>
+                        <a th:href="@{/dashboard/usuarios-activos}" class="btn btn-sm">[ Usuarios Activos ]</a>
+                    </div>
+
+                    <div class="d-flex justify-content-between flex-wrap align-items-center mb-3">
+                        <h6 class="text-primary m-0"><i class="bi bi-graph-up-arrow me-2"></i>Resumen mensual</h6>
+                        <span class="text-muted small" th:text="${mesTexto} + ' ' + ${anioActual}">Mayo 2026</span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="metric-card">
+                                <p class="metric-label">Certificados</p>
+                                <p class="metric-value" th:text="${totalCertificadosMes}">0</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="metric-card">
+                                <p class="metric-label">Solicitudes</p>
+                                <p class="metric-value" th:text="${totalSolicitudesMes}">0</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-2">
+                            <div class="metric-card">
+                                <p class="metric-label">Pendientes</p>
+                                <p class="metric-value text-warning-emphasis" th:text="${pendientesMes}">0</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-2">
+                            <div class="metric-card">
+                                <p class="metric-label">Aprobadas</p>
+                                <p class="metric-value text-success" th:text="${aprobadasMes}">0</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-2">
+                            <div class="metric-card">
+                                <p class="metric-label">Rechazadas</p>
+                                <p class="metric-value text-danger" th:text="${rechazadasMes}">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="data-panel">
+                                <h6 class="panel-title">Certificados del mes</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>Empleado</th>
+                                            <th>Tipo</th>
+                                            <th>Fecha</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:if="${#lists.isEmpty(certificadosMes)}">
+                                            <td colspan="3" class="text-center text-muted py-3">Sin certificados este mes.</td>
+                                        </tr>
+                                        <tr th:each="certificado : ${certificadosMes}">
+                                            <td th:text="${certificado.empleado.nombreCompleto}">Empleado</td>
+                                            <td th:text="${certificado.tipo}">LABORAL</td>
+                                            <td th:text="${#temporals.format(certificado.fechaGeneracion, 'dd/MM/yyyy')}">19/05/2026</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="data-panel">
+                                <h6 class="panel-title">Solicitudes de vacaciones del mes</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>Empleado</th>
+                                            <th>Periodo</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:if="${#lists.isEmpty(solicitudesMes)}">
+                                            <td colspan="3" class="text-center text-muted py-3">Sin solicitudes en este mes.</td>
+                                        </tr>
+                                        <tr th:each="solicitud : ${solicitudesMes}">
+                                            <td th:text="${solicitud.empleado.nombreCompleto}">Empleado</td>
+                                            <td th:text="${#temporals.format(solicitud.fechaInicio, 'dd/MM/yyyy')} + ' - ' + ${#temporals.format(solicitud.fechaFin, 'dd/MM/yyyy')}">01/05/2026 - 05/05/2026</td>
+                                            <td>
+                                                <span class="badge rounded-pill"
+                                                      th:classappend="${solicitud.estado.name() == 'APROBADA'} ? 'text-bg-success' : (${solicitud.estado.name() == 'RECHAZADA'} ? 'text-bg-danger' : 'text-bg-warning')"
+                                                      th:text="${solicitud.estado}">
+                                                    PENDIENTE
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer text-center py-3">
+    <div class="container text-muted small">© 2024 EZ CERTS | <a href="#">Terminos y Condiciones</a> | <a href="#">Privacidad</a></div>
+</footer>
+</body>
+</html>

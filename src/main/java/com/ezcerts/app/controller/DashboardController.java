@@ -31,6 +31,11 @@ import com.ezcerts.app.service.SolicitudVacacionesService;
 import com.ezcerts.app.model.SolicitudVacaciones;
 import com.ezcerts.app.model.EstadoSolicitud;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.time.YearMonth;
+import java.time.LocalDateTime;
+import com.ezcerts.app.repository.SolicitudVacacionesRepository;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 @Controller
 public class DashboardController {
@@ -49,6 +54,9 @@ public class DashboardController {
 
     @Autowired
     private SolicitudVacacionesService solicitudVacacionesService;
+
+    @Autowired
+    private SolicitudVacacionesRepository solicitudVacacionesRepository;
 
     @GetMapping("/dashboard")
     public String dashboard(Authentication authentication) {
@@ -174,6 +182,51 @@ public class DashboardController {
         solicitudes.sort(Comparator.comparing(SolicitudVacaciones::getFechaInicio));
         model.addAttribute("solicitudesPendientes", solicitudes);
         return "solicitudes-pendientes";
+    }
+
+    @GetMapping("/dashboard/admin/reportes-mes")
+    public String reportesDelMes(Authentication authentication, Model model) {
+        if (!esRrhhOAdmin(authentication)) {
+            return "redirect:/dashboard";
+        }
+
+        YearMonth mesActual = YearMonth.now();
+        LocalDate inicioMes = mesActual.atDay(1);
+        LocalDate finMes = mesActual.atEndOfMonth();
+        LocalDateTime inicioMesDateTime = inicioMes.atStartOfDay();
+        LocalDateTime finMesDateTime = finMes.atTime(23, 59, 59);
+
+        List<Certificado> certificadosMes = certificadoRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "fechaGeneracion"))
+                .stream()
+                .filter(c -> !c.getFechaGeneracion().isBefore(inicioMesDateTime) && !c.getFechaGeneracion().isAfter(finMesDateTime))
+                .collect(Collectors.toList());
+
+        List<SolicitudVacaciones> solicitudesMes = solicitudVacacionesRepository.findAll()
+                .stream()
+                .filter(s -> !s.getFechaFin().isBefore(inicioMes) && !s.getFechaInicio().isAfter(finMes))
+                .sorted(Comparator.comparing(SolicitudVacaciones::getFechaInicio).reversed())
+                .collect(Collectors.toList());
+
+        long totalSolicitudes = solicitudesMes.size();
+        long pendientes = solicitudesMes.stream().filter(s -> s.getEstado() == EstadoSolicitud.PENDIENTE).count();
+        long aprobadas = solicitudesMes.stream().filter(s -> s.getEstado() == EstadoSolicitud.APROBADA).count();
+        long rechazadas = solicitudesMes.stream().filter(s -> s.getEstado() == EstadoSolicitud.RECHAZADA).count();
+
+        String mesTexto = mesActual.getMonth().getDisplayName(TextStyle.FULL, new Locale("es", "CO"));
+        if (!mesTexto.isEmpty()) {
+            mesTexto = mesTexto.substring(0, 1).toUpperCase() + mesTexto.substring(1);
+        }
+
+        model.addAttribute("mesTexto", mesTexto);
+        model.addAttribute("anioActual", mesActual.getYear());
+        model.addAttribute("totalCertificadosMes", certificadosMes.size());
+        model.addAttribute("totalSolicitudesMes", totalSolicitudes);
+        model.addAttribute("pendientesMes", pendientes);
+        model.addAttribute("aprobadasMes", aprobadas);
+        model.addAttribute("rechazadasMes", rechazadas);
+        model.addAttribute("certificadosMes", certificadosMes);
+        model.addAttribute("solicitudesMes", solicitudesMes);
+        return "reportes-mes";
     }
 
     @PostMapping("/dashboard/admin/solicitudes-pendientes/actualizar-estado")
