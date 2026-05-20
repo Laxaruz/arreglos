@@ -133,14 +133,22 @@
                             </div>
                         </div>
                         <div class="row g-3">
-                            <div class="col-6">
+                            <div class="col-md-4">
                                 <a th:href="@{/dashboard/usuarios-activos}" class="btn btn-outline-light w-100 border py-2 text-muted fw-bold">( Cancelar )</a>
                             </div>
-                            <div class="col-6">
+                            <div class="col-md-4">
+                                <button type="button"
+                                        class="btn btn-outline-danger w-100 py-2 fw-bold"
+                                        onclick="confirmarEliminacion()">
+                                    Eliminar
+                                </button>
+                            </div>
+                            <div class="col-md-4">
                                 <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="background-color: #235487; border-color: #235487; color: #ffffff !important;">Guardar Cambios</button>
                             </div>
                         </div>
                     </form>
+                    <form id="deleteUserForm" th:action="@{/dashboard/usuarios-activos/eliminar/{id}(id=${usuarioId})}" method="post" class="d-none"></form>
                 </div>
             </div>
         </div>
@@ -151,6 +159,13 @@
 </footer>
 
 <script>
+    function confirmarEliminacion() {
+        const confirmado = window.confirm("Esta accion eliminara el usuario de forma permanente. Deseas continuar?");
+        if (confirmado) {
+            document.getElementById('deleteUserForm').submit();
+        }
+    }
+
     function toggleEmpleadoFields() {
         const rol = document.getElementById('rolSelect').value;
         const fields = document.getElementById('empleadoFields');
