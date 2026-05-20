@@ -24,6 +24,12 @@ import com.ezcerts.app.repository.CertificadoRepository;
 import com.ezcerts.app.model.Certificado;
 import java.time.LocalDate;
 import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.Collections;
+import java.util.ArrayList;
+import com.ezcerts.app.service.SolicitudVacacionesService;
+import com.ezcerts.app.model.SolicitudVacaciones;
+import com.ezcerts.app.model.EstadoSolicitud;
 
 @Controller
 public class DashboardController {
@@ -39,6 +45,9 @@ public class DashboardController {
 
     @Autowired
     private CertificadoRepository certificadoRepository;
+
+    @Autowired
+    private SolicitudVacacionesService solicitudVacacionesService;
 
     @GetMapping("/dashboard")
     public String dashboard(Authentication authentication) {
@@ -65,20 +74,88 @@ public class DashboardController {
     public String dashboardEmpleado(Authentication authentication, Model model) {
         String username = authentication.getName();
         Usuario usuario = usuarioService.buscarPorUsername(username).orElse(null);
+        List<Certificado> actividades = Collections.emptyList();
+        List<SolicitudVacaciones> solicitudesVacaciones = Collections.emptyList();
+
         if (usuario != null) {
             Empleado empleado = empleadoService.buscarPorUsuarioId(usuario.getId()).orElse(null);
             if (empleado != null) {
-                List<Certificado> actividades = certificadoRepository.findByEmpleadoIdOrderByFechaGeneracionDesc(empleado.getId());
-                model.addAttribute("actividades", actividades);
-                model.addAttribute("cantidadCertificados", actividades.size());
+                actividades = certificadoRepository.findByEmpleadoIdOrderByFechaGeneracionDesc(empleado.getId());
+                solicitudesVacaciones = new ArrayList<>(solicitudVacacionesService.listarPorEmpleado(empleado.getId()));
+                solicitudesVacaciones.sort(Comparator.comparing(SolicitudVacaciones::getFechaInicio).reversed());
             }
         }
+
+        model.addAttribute("actividades", actividades);
+        model.addAttribute("cantidadCertificados", actividades.size());
+        model.addAttribute("cantidadVacaciones", solicitudesVacaciones.size());
+        model.addAttribute("ultimaSolicitudVacaciones", solicitudesVacaciones.isEmpty() ? null : solicitudesVacaciones.get(0));
         return "dashboard-empleado";
     }
 
     @GetMapping("/dashboard/empleado/solicitar-certificado")
     public String solicitarCertificado() {
         return "solicitar-certificado";
+    }
+
+    @GetMapping("/dashboard/empleado/mis-vacaciones")
+    public String misVacaciones(Authentication authentication, Model model) {
+        String username = authentication.getName();
+        Usuario usuario = usuarioService.buscarPorUsername(username).orElse(null);
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        Empleado empleado = empleadoService.buscarPorUsuarioId(usuario.getId()).orElse(null);
+        if (empleado == null) {
+            return "redirect:/dashboard/empleado";
+        }
+
+        List<SolicitudVacaciones> solicitudes = new ArrayList<>(solicitudVacacionesService.listarPorEmpleado(empleado.getId()));
+        solicitudes.sort(Comparator.comparing(SolicitudVacaciones::getFechaInicio).reversed());
+
+        long pendientes = solicitudes.stream().filter(s -> s.getEstado() == EstadoSolicitud.PENDIENTE).count();
+        long aprobadas = solicitudes.stream().filter(s -> s.getEstado() == EstadoSolicitud.APROBADA).count();
+        long rechazadas = solicitudes.stream().filter(s -> s.getEstado() == EstadoSolicitud.RECHAZADA).count();
+
+        model.addAttribute("solicitudes", solicitudes);
+        model.addAttribute("pendientes", pendientes);
+        model.addAttribute("aprobadas", aprobadas);
+        model.addAttribute("rechazadas", rechazadas);
+        return "mis-vacaciones";
+    }
+
+    @PostMapping("/dashboard/empleado/mis-vacaciones/solicitar")
+    public String solicitarVacaciones(Authentication authentication,
+                                      @RequestParam("fechaInicio") LocalDate fechaInicio,
+                                      @RequestParam("fechaFin") LocalDate fechaFin,
+                                      org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        if (fechaInicio.isAfter(fechaFin)) {
+            redirectAttributes.addFlashAttribute("error", "La fecha de inicio no puede ser mayor que la fecha final.");
+            return "redirect:/dashboard/empleado/mis-vacaciones";
+        }
+
+        String username = authentication.getName();
+        Usuario usuario = usuarioService.buscarPorUsername(username).orElse(null);
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        Empleado empleado = empleadoService.buscarPorUsuarioId(usuario.getId()).orElse(null);
+        if (empleado == null) {
+            redirectAttributes.addFlashAttribute("error", "No se encontró información del empleado.");
+            return "redirect:/dashboard/empleado/mis-vacaciones";
+        }
+
+        SolicitudVacaciones solicitud = new SolicitudVacaciones();
+        solicitud.setFechaInicio(fechaInicio);
+        solicitud.setFechaFin(fechaFin);
+        solicitud.setEstado(EstadoSolicitud.PENDIENTE);
+        solicitud.setEmpleado(empleado);
+        solicitudVacacionesService.crear(solicitud);
+
+        redirectAttributes.addFlashAttribute("exito", "Tu solicitud de vacaciones fue enviada correctamente.");
+        return "redirect:/dashboard/empleado/mis-vacaciones";
     }
 
     @GetMapping("/dashboard/admin")
